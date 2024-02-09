@@ -1,50 +1,59 @@
-import axios from "axios";
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 
 function Cart() {
-  const navigate = useNavigate();
-  const { productId } = useParams();
+  const [cart, setcart] = useState(0);
+  const [data, setData] = useState([]);
   
   useEffect(() => {
-    axios.get(`https://dummyjson.com/products/${productId}`).then((res) => {
-      console.log(res.data);
-      
-    });
-  }, [productId]);
+    let getData = JSON.parse(localStorage.getItem("carts"));
+
+    setData(getData);
+  }, []);
+
+  console.log(data);
+ const handleRemove=(id)=>{
+  const arr=data.filter((item)=>item.id!==id)
+  setData(arr)
+ }
+  
+  
+ 
   return (
     <div className="bg-gray-300 h-screen">
-      <h1 className="text-center pt-5 pb-4 text-5xl font-bold">Shopper Cart</h1>
+      <h1 className="text-center pt-5 pb-4 text-5xl font-bold">Cart</h1>
       <div className=" flex justify-center pt-4">
-        <h1>{productId}</h1>
-
         <table className="border-separate border-spacing-10 border border-slate-600 bg-white ">
           <tr className="text-2xl">
             <th>Product</th>
             <th>Cost</th>
             <th>discount</th>
+            <th>Quantity</th>
             <th>Options</th>
           </tr>
-          <tr className="text-xl">
-            <td>product</td>
-            <td>100</td>
-            <td>20%</td>
-            <td>delete</td>
-          </tr>
-
-          <tr className="text-xl">
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <h1
-                className="uppercase text-base pt-2 pb-2 pr-5 pl-5 border bg-orange-400  rounded-lg font-bold cursor-pointer"
-                onClick={() => navigate("/buynow")}
-              >
-                Place Order
-              </h1>
-            </td>
-          </tr>
+          {data.map((data, i) => {
+            return (
+              <tr key={i} className="text-xl">
+               
+                <td><img className="h-8 " src={data.thumbnail} alt="" />{data.title}</td>
+                <td>{data.price}</td>
+                <td>{data.discountPercentage}</td>
+                <td>
+                  <div className="flex gap-1">
+                  <button className="border p-1" onClick={() => setcart(cart - 1)}>
+                      -
+                    </button>
+                    <h1>{cart}</h1>
+                    <button className="border p-1" onClick={() => setcart(cart + 1)}>
+                      +
+                    </button>
+                  </div>
+                </td>
+                <td  onClick={() =>handleRemove(data.id) }
+                     >delete</td>
+              </tr>
+            );
+          })}
         </table>
       </div>
     </div>

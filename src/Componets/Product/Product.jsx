@@ -1,14 +1,15 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "../loading/Loading";
+import toast, { Toaster } from "react-hot-toast";
 
 function Product() {
   const [single, setSingle] = useState(null);
   const [focusImage, setFocusImage] = useState(null);
   const { productId } = useParams();
-  const navigate = useNavigate();
+
   const [load, setLoad] = useState(false);
   useEffect(() => {
     setLoad(true);
@@ -19,7 +20,29 @@ function Product() {
     });
   }, [productId]);
 
-  return  load? <Loading/>:(
+  const handleApplyBtn = (item) => {
+    let newCart = {};
+    let prevProduct = JSON.parse(localStorage.getItem("carts"));
+
+    let searchedJob = prevProduct?.find((data) => data.id == item.id);
+    if (!searchedJob) {
+      if (!prevProduct) {
+        newCart = [item];
+        localStorage.setItem("carts", JSON.stringify(newCart));
+        toast.success("Added in Cart");
+      } else {
+        newCart = [...prevProduct, item];
+        localStorage.setItem("carts", JSON.stringify(newCart));
+        toast.success("Added in Cart");
+      }
+    } else {
+      toast.error("Already added");
+    }
+  };
+
+  return load ? (
+    <Loading />
+  ) : (
     <div className="flex gap-8 p-10 w-full">
       <div className=" flex flex-col gap-3 h-full w-[20%]">
         {single?.images?.map((image, i) => {
@@ -40,7 +63,6 @@ function Product() {
           src={focusImage ? focusImage : single?.images[0]}
           alt=""
         />
-       
       </div>
       <div className="w-[30%] ">
         <h1 className="text-4xl font-bold mb-1">{single?.title}</h1>
@@ -58,19 +80,14 @@ function Product() {
             {single?.discountPercentage}% off
           </h1>
         </div>
-        <div className="flex gap-4 items-end mt-6">
+        <div className="flex mt-6">
           <h1
             className="uppercase text-base border p-4 bg-yellow-400 font-bold rounded-lg cursor-pointer"
-            onClick={() => navigate("/cart")}
+            onClick={() => handleApplyBtn(single)}
           >
             add to cart
           </h1>
-          <h1
-            className="uppercase text-base p-4 border bg-orange-400  rounded-lg font-bold cursor-pointer"
-            onClick={() => navigate("/buynow")}
-          >
-            buy now
-          </h1>
+          <Toaster />
         </div>
       </div>
     </div>
